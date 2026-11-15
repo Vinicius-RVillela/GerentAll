@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Mercadinho.Api/Mercadinho.Api.csproj" />
+    <Project Path="src/Mercadinho.Application/Mercadinho.Application.csproj" />
+    <Project Path="src/Mercadinho.Desktop/Mercadinho.Desktop.csproj" />
+    <Project Path="src/Mercadinho.Domain/Mercadinho.Domain.csproj" />
+    <Project Path="src/Mercadinho.Infrastructure/Mercadinho.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Mercadinho.Api.Tests/Mercadinho.Api.Tests.csproj" />
+    <Project Path="tests/Mercadinho.Domain.Tests/Mercadinho.Domain.Tests.csproj" />
+  </Folder>
+</Solution>

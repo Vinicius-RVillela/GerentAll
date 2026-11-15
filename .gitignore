@@ -1,0 +1,23 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+TestResults/
+publish/
+
+# IDEs
+.vs/
+.vscode/
+.idea/
+*.swp
+
+# Segredos e ambiente local
+.env
+appsettings.*.local.json
+*.pfx
+*.p12
+
+# SO
+.DS_Store
+Thumbs.db

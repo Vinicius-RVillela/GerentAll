@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+.git/
+.github/
+.env
+docs/
+tests/
+src/Mercadinho.Desktop/
+*.md
