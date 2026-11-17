@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Default")
     ?? throw new InvalidOperationException(
         "ConnectionStrings:Default não configurada. Em desenvolvimento, rode: " +
-        "dotnet user-secrets set \"ConnectionStrings:Default\" \"Host=localhost;...\" --project src/Mercadinho.Api " +
+        "dotnet user-secrets set \"ConnectionStrings:Default\" \"Server=localhost;Port=3306;Database=gerentall;...\" --project src/Mercadinho.Api " +
         "(veja o README). No Docker, ela vem do docker-compose.yml.");
 
 builder.Services.AddInfrastructure(connectionString);
@@ -34,7 +34,7 @@ if (app.Environment.IsDevelopment())
 
 // /health/live: a API está de pé (não consulta o banco).
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
-// /health/ready: a API consegue falar com o PostgreSQL.
+// /health/ready: a API consegue falar com o MariaDB.
 app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = c => c.Tags.Contains("ready") });
 
 app.UseAuthorization();

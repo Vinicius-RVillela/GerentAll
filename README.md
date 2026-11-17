@@ -20,13 +20,13 @@ Mercadinho.Desktop (Avalonia)  ──HTTP──▶  Mercadinho.Api (ASP.NET Core
                                                │
                                    Domain (regras, sem dependências)
                                                │
-                              Infrastructure (EF Core) ──▶ PostgreSQL
+                              Infrastructure (EF Core) ──▶ MariaDB
 ```
 
 | Camada | Tecnologia |
 |---|---|
 | API | ASP.NET Core (.NET 10), OpenAPI/Swagger |
-| Banco | PostgreSQL 17 + Entity Framework Core |
+| Banco | MariaDB 11.4 LTS + Entity Framework Core (MySql.EntityFrameworkCore) |
 | Desktop | Avalonia UI 12 + MVVM (CommunityToolkit.Mvvm) |
 | Testes | xUnit, WebApplicationFactory |
 | Infra | Docker Compose, GitHub Actions |
@@ -40,7 +40,9 @@ cp .env.example .env      # ajuste a senha
 docker compose up --build
 ```
 
-O PostgreSQL só aceita conexões deste computador (`127.0.0.1:5432`).
+Na primeira vez, o MariaDB cria o banco `gerentall` sozinho, rodando
+`database/mariadb/01_estrutura.sql`. Ele só aceita conexões deste computador,
+na porta `127.0.0.1:3307` (a 3307 evita conflito com um MariaDB já instalado).
 
 - Saúde da API: http://localhost:8080/health/live
 - Conexão com o banco: http://localhost:8080/health/ready
@@ -48,20 +50,30 @@ O PostgreSQL só aceita conexões deste computador (`127.0.0.1:5432`).
 
 ### Sem Docker (desenvolvimento)
 
-Requer .NET SDK 10 e um PostgreSQL. O mais simples é subir só o banco do
-Docker:
+Requer .NET SDK 10 e um MariaDB 10.11+ (ou o do Docker: `docker compose up -d db`).
+
+**1. Crie o banco** com os scripts de [`database/mariadb`](database/mariadb/README.md):
 
 ```bash
-docker compose up -d db
+mysql -h 127.0.0.1 -u root -p < database/mariadb/01_estrutura.sql
+mysql -h 127.0.0.1 -u root -p < database/mariadb/02_dados_exemplo.sql   # opcional
 ```
 
-A conexão com o banco **não fica no repositório**. Ela é guardada com o
+**2. Crie um usuário só para a API**, que lê e grava dados mas não pode apagar
+tabelas nem mexer em outros bancos. Rode no DBeaver (como root), trocando `SUA_SENHA`:
+
+```sql
+CREATE USER 'gerentall_app'@'localhost' IDENTIFIED BY 'SUA_SENHA';
+GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE ON gerentall.* TO 'gerentall_app'@'localhost';
+```
+
+**3. Guarde a conexão no user-secrets.** Ela **não fica no repositório**: o
 [user-secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets)
-do .NET, fora da pasta do projeto. Configure uma vez, trocando `SUA_SENHA`
-pela mesma senha do `.env`:
+do .NET guarda fora da pasta do projeto. Use a mesma senha do passo 2
+(com o MariaDB do Docker, use `Port=3307` e a senha do `.env`):
 
 ```bash
-dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Port=5432;Database=mercadinho;Username=mercadinho;Password=SUA_SENHA" --project src/Mercadinho.Api
+dotnet user-secrets set "ConnectionStrings:Default" "Server=localhost;Port=3306;Database=gerentall;Uid=gerentall_app;Pwd=SUA_SENHA" --project src/Mercadinho.Api
 ```
 
 Depois, rode a API e o desktop:
@@ -86,12 +98,14 @@ falsa (`tests/Mercadinho.Api.Tests/ApiFactory.cs`).
 src/
   Mercadinho.Domain/          entidades e regras de negócio
   Mercadinho.Application/     casos de uso
-  Mercadinho.Infrastructure/  banco de dados (EF Core + Npgsql)
+  Mercadinho.Infrastructure/  banco de dados (EF Core + MariaDB)
   Mercadinho.Api/             API REST
   Mercadinho.Desktop/         aplicativo desktop (Avalonia)
 tests/
   Mercadinho.Domain.Tests/
   Mercadinho.Api.Tests/
+database/
+  mariadb/                    scripts SQL: estrutura e dados de exemplo
 docs/
   PLANO_MVP.md
 ```

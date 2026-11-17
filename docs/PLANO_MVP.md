@@ -12,12 +12,12 @@ Emissão fiscal (devolução, NFS-e) fica fora do MVP de propósito.
 |---|---|---|
 | Back-end | ASP.NET Core Web API (.NET 10 LTS) | C#, padrão de mercado em vagas |
 | ORM | Entity Framework Core + migrations | Versiona o banco junto com o código |
-| Banco | PostgreSQL (SQLite opcional p/ modo demo) | Gratuito, robusto, roda em Docker |
+| Banco | MariaDB 11.4 LTS (compatível com MySQL) | Gratuito, roda em Docker, mesmo banco usado em outros projetos |
 | Front-end | Avalonia UI 12 + MVVM (CommunityToolkit.Mvvm) | Desktop nativo Linux + Windows em C# |
 | Autenticação | JWT + perfis (Admin, Gerente, Operador) | Controle de acesso por tela/ação |
 | Testes | xUnit + FluentAssertions + Testcontainers | Testes de regra e de integração com banco real |
 | Docs da API | Swagger / OpenAPI | Recrutador consegue "ver" a API |
-| Infra | Docker Compose (api + postgres) | Sobe tudo com um comando |
+| Infra | Docker Compose (api + mariadb) | Sobe tudo com um comando |
 | CI | GitHub Actions (build + testes a cada push) | Mostra disciplina de engenharia |
 
 ## 2. Estrutura da solução
@@ -26,7 +26,7 @@ Emissão fiscal (devolução, NFS-e) fica fora do MVP de propósito.
 src/
   Mercadinho.Domain/          entidades e regras (sem dependência de banco/UI)
   Mercadinho.Application/     casos de uso (ex.: RegistrarAvaria, ImportarNFe)
-  Mercadinho.Infrastructure/  EF Core, Postgres, leitor de XML
+  Mercadinho.Infrastructure/  EF Core, MariaDB, leitor de XML
   Mercadinho.Api/             controllers, auth, Swagger
   Mercadinho.Desktop/         Avalonia (Views + ViewModels)
 tests/
@@ -56,7 +56,7 @@ deixa rastro: quem, quando e por quê. Isso evita estoque "sumindo" e é um
 ## 4. Fases (estimativa para ~10 h/semana)
 
 ### Fase 0 — Fundação (1 semana)
-- Repositório no GitHub, solução .NET, Docker Compose com Postgres.
+- Repositório no GitHub, solução .NET, Docker Compose com MariaDB.
 - CI rodando build e testes.
 - README inicial com objetivo e como rodar.
 

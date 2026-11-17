@@ -1,22 +1,27 @@
 services:
   db:
-    image: postgres:17
+    image: mariadb:11.4          # versão LTS (suporte longo)
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-mercadinho}
-      POSTGRES_USER: ${POSTGRES_USER:-mercadinho}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no arquivo .env}
+      # O banco gerentall é criado pelo script de estrutura (montado abaixo).
+      MARIADB_DATABASE: gerentall
+      MARIADB_USER: ${MARIADB_USER:-gerentall_app}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?defina MARIADB_PASSWORD no arquivo .env}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?defina MARIADB_ROOT_PASSWORD no arquivo .env}
     ports:
-      # Só este computador acessa o banco (127.0.0.1). Sem isso, a porta 5432
-      # fica aberta para qualquer aparelho da rede.
-      - "127.0.0.1:5432:5432"
+      # Só este computador acessa o banco (127.0.0.1). A porta 3307 do lado de
+      # fora evita conflito com um MariaDB já instalado na 3306.
+      - "127.0.0.1:3307:3306"
     volumes:
-      - dados_postgres:/var/lib/postgresql/data
+      - dados_mariadb:/var/lib/mysql
+      # Na PRIMEIRA vez que o volume é criado, o MariaDB roda este script:
+      # tabelas, triggers e views do GerentAll. Depois disso ele não roda mais.
+      - ./database/mariadb/01_estrutura.sql:/docker-entrypoint-initdb.d/01_estrutura.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 20
 
   api:
     build: .
@@ -26,9 +31,9 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      ConnectionStrings__Default: Host=db;Port=5432;Database=${POSTGRES_DB:-mercadinho};Username=${POSTGRES_USER:-mercadinho};Password=${POSTGRES_PASSWORD}
+      ConnectionStrings__Default: Server=db;Port=3306;Database=gerentall;Uid=${MARIADB_USER:-gerentall_app};Pwd=${MARIADB_PASSWORD}
     ports:
       - "8080:8080"
 
 volumes:
-  dados_postgres:
+  dados_mariadb:
