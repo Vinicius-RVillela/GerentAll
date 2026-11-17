@@ -7,7 +7,9 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-mercadinho}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no arquivo .env}
     ports:
-      - "5432:5432"
+      # Só este computador acessa o banco (127.0.0.1). Sem isso, a porta 5432
+      # fica aberta para qualquer aparelho da rede.
+      - "127.0.0.1:5432:5432"
     volumes:
       - dados_postgres:/var/lib/postgresql/data
     healthcheck:

@@ -1,4 +1,4 @@
-# Plano do MVP — Controle de Produtos para Mercadinho
+# Plano do MVP — GerentAll (controle de produtos para mercadinho)
 
 Objetivo: um sistema de retaguarda (estoque) para mercadinho, rodando em
 Linux e Windows 10/11, pensado como **projeto de portfólio** bem acabado.

@@ -30,4 +30,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build da imagem da API
-        run: docker build -t mercadinho-api .
+        run: docker build -t gerentall-api .

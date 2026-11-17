@@ -1,9 +1,8 @@
 using System.Net;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Mercadinho.Api.Tests;
 
-public class HealthTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public class HealthTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
     [Fact]
     public async Task Health_live_responde_200_sem_precisar_do_banco()
